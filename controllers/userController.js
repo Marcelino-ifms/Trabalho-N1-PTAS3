@@ -1,15 +1,17 @@
 const User = require('../models/User');
 const secret = require('../config/auth.json');
+const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
 const createUser = async (req, res) => {
     const { name, password, email } = req.body;
+    const newpassword = await bcrypt.hash(password, 10)
     await User.create({
         name: name,
-        password: password,
+        password: newpassword,
         email: email
     }).then(() => {
-        res.json('Cadastro de usuário realizado com sucesso!');
+        res.json(newpassword);
         console.log('Cadastro de usuário realizado com sucesso!');
     }).catch((erro) => {
         res.json("Deu erro!");
@@ -71,17 +73,20 @@ const authenticatedUser = async (req, res) =>{
         const isUserAthenticated = await User.findOne({
             where:{
                 email: email,
-                password:password
             }
         })
-        const token = jwt.sign({id:email}, secret.secret, {
-            expiresIn:86400,
-        })
-        return res.json({
-            name: isUserAthenticated.name,
-            email: isUserAthenticated.email,
-            token: token
-        });
+        const response = await bcrypt.compare(password, isUserAthenticated.password)
+        if(response === true){
+            const token = jwt.sign({id:email}, secret.secret, {
+                expiresIn:86400,
+            })
+            return res.json({
+                name: isUserAthenticated.name,
+                email: isUserAthenticated.email,
+                token: token
+            });
+        }
+        
     }catch (error){
         return res.json('Usuário nao encontrado');
     }
