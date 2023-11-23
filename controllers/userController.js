@@ -48,10 +48,11 @@ const deleteUser = async(req, res) =>{
 const updateUser = async(req, res) =>{
     const id = parseInt(req.params.id);
     const { name, password, email } = req.body;
+    const newpassword = await bcrypt.hash(password, 10)
     try {
         await User.update({
         name: name,
-        password: password,
+        password: newpassword,
         email:email
     },
     {
