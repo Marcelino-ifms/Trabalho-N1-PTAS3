@@ -11,7 +11,7 @@ const createUser = async (req, res) => {
         password: newpassword,
         email: email
     }).then(() => {
-        res.json(newpassword);
+        res.json("usuário cadastrado com sucesso!");
         console.log('Cadastro de usuário realizado com sucesso!');
     }).catch((erro) => {
         res.json("Deu erro!");
